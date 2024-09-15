@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { PokemonService } from "../services/pokemon_service";
-import { PokemonInterface } from "../interfaces/interfaces";
 
 export class PokemonController {
     private pokemonService: PokemonService;
@@ -9,19 +8,19 @@ export class PokemonController {
         this.pokemonService = new PokemonService();
     }
 
-    createPokemon = async (req: Request<{}, {}, PokemonInterface>, res: Response) => {
+    createPokemon = async (req: Request, res: Response) => {
         try {
-            const pokemon = await this.pokemonService.createPokemon(req.body);
+            const pokemon = await this.pokemonService.createPokemon(req);
             res.status(201).send({ result: pokemon });
         } catch (error) {
             res.status(500).send({ error: "Erro ao criar o Pokémon" });
         }
     };
 
-    updatePokemon = async (req: Request<{ id: string }, {}, PokemonInterface>, res: Response) => {
+    updatePokemon = async (req: Request<{ id: string }>, res: Response) => {
         const id = parseInt(req.params.id);
         try {
-            const updatedPokemon = await this.pokemonService.updatePokemon(id, req.body);
+            const updatedPokemon = await this.pokemonService.updatePokemon(id, req);
             if (updatedPokemon) {
                 res.status(201).send({ result: updatedPokemon });
             } else {
@@ -49,6 +48,16 @@ export class PokemonController {
     getAllPokemons = async (req: Request, res: Response) => {
         try {
             const pokemons = await this.pokemonService.getAllPokemons();
+            res.send(pokemons);
+        } catch (error) {
+            res.status(500).send({ error: "Erro ao buscar Pokémons" });
+        }
+    };
+
+    getPokemonById = async (req: Request<{id: string}>, res: Response) => {
+        const id = parseInt(req.params.id)
+        try {
+            const pokemons = await this.pokemonService.getPokemonById(id);
             res.send(pokemons);
         } catch (error) {
             res.status(500).send({ error: "Erro ao buscar Pokémons" });
